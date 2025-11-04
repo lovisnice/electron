@@ -6,14 +6,14 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
+<body class="bg-gray-100 flex items-center justify-center p-4">
 
 
 <div x-data="chatApp()" class="bg-white p-6 rounded shadow-md w-96">
   <!-- If user is logged in -->
   <template x-if="accessToken">
     <div>
-      <h1 class="text-lg font-semibold mb-4 text-green-600">✅ Ви успішно авторизувались!</h1>
+      <h1 class="text-lg font-semibold mb-4 text-green-600">Ви успішно авторизувались!</h1>
       <div class="flex flex-col h-[300px]">
         <div class="mb-2 p-2 bg-gray-100 rounded text-sm break-words">
           <span class="font-bold">Your Matrix ID:</span>
