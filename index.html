@@ -10,15 +10,31 @@
 
 
 <div x-data="chatApp()" class="bg-white p-6 rounded shadow-md w-96">
+  <!-- If user is logged in -->
+  <template x-if="accessToken">
+    <div>
+      <h1 class="text-lg font-semibold mb-4 text-green-600">✅ Ви успішно авторизувались!</h1>
+      <div class="flex flex-col h-[300px]">
+        <div class="mb-2 p-2 bg-gray-100 rounded text-sm break-words">
+          <span class="font-bold">Your Matrix ID:</span>
+          <span class="text-gray-700" x-text="userId ? userId : 'Loading...'"></span>
+        </div>
+        <button @click="logout()" class="bg-red-500 text-white mt-auto p-2 rounded">Logout</button>
+      </div>
+    </div>
+  </template>
+
+  <!-- If not logged in -->
   <template x-if="!accessToken">
     <div>
-      <h2 class="text-xl font-bold mb-4">Login</h2>
-      <input x-model="username" placeholder="Username"
-             class="border p-2 w-full mb-2 rounded" />
-      <input x-model="password" type="password" placeholder="Password"
-             class="border p-2 w-full mb-2 rounded" />
-      <button @click="login()" class="bg-blue-500 text-white p-2 w-full rounded">Login</button>
-      <p x-text="error" class="text-red-500 mt-2"></p>
+      <h2 class="text-xl font-bold mb-4">Matrix Login</h2>
+      <input x-model="username" placeholder="Username" class="border p-2 w-full mb-2 rounded" />
+      <input x-model="password" type="password" placeholder="Password" class="border p-2 w-full mb-2 rounded" />
+      <button @click="login()" class="bg-blue-500 text-white p-2 w-full rounded hover:bg-blue-600">Login</button>
+      <p x-text="error" class="text-red-500 mt-2 text-sm"></p>
+      <template x-if="loading">
+        <p class="text-gray-500 text-sm mt-2">🔄 Logging in...</p>
+      </template>
     </div>
   </template>
 </div>
