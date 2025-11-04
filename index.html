@@ -3,71 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <title>Matrix Chat</title>
+   <script src="./login.js"></script>
+   <script src="./sidebar.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
+
+  <style>
+    .chat-container {
+      min-height: 80vh;
+    }
+    .sidebar {
+      min-width: 250px;
+    }
+    .chat-area {
+      flex-grow: 1;
+    }
+    .message-input {
+      min-height: 80px;
+    }
+    .room-list li {
+      padding: 8px;
+      transition: background-color 0.2s;
+    }
+    .room-list li:hover {
+      background-color: #e0e7ff;
+    }
+    .room-list li.active {
+      background-color: #bfdbfe;
+      font-weight: 500;
+    }
+  </style>
+
+
 </head>
+
+
 <body class="bg-gray-100 flex items-center justify-center p-4">
+  <div x-data="chatApp()" class="chat-container bg-white rounded-lg shadow-lg flex w-full max-w-5xl">
+    <!-- Контейнер для сайдбару--> 
+    <div id="sidebar-container"></div>
 
 
-<div x-data="chatApp()" class="bg-white p-6 rounded shadow-md w-96">
-  <!-- If user is logged in -->
-  <template x-if="accessToken">
-    <div>
-      <h1 class="text-lg font-semibold mb-4 text-green-600">Ви успішно авторизувались!</h1>
-      <div class="flex flex-col h-[300px]">
-        <div class="mb-2 p-2 bg-gray-100 rounded text-sm break-words">
-          <span class="font-bold">Your Matrix ID:</span>
-          <span class="text-gray-700" x-text="userId ? userId : 'Loading...'"></span>
-        </div>
-        <button @click="logout()" class="bg-red-500 text-white mt-auto p-2 rounded">Logout</button>
+    <!-- Контейнер для основної області чату -->
+    <div class="chat-area p-4 flex flex-col">
+      <!-- Контейнер для логіну -->
+      <div id="login-container">
+        
       </div>
-    </div>
-  </template>
 
-  <!-- If not logged in -->
-  <template x-if="!accessToken">
-    <div>
-      <h2 class="text-xl font-bold mb-4">Matrix Login</h2>
-      <input x-model="username" placeholder="Username" class="border p-2 w-full mb-2 rounded" />
-      <input x-model="password" type="password" placeholder="Password" class="border p-2 w-full mb-2 rounded" />
-      <button @click="login()" class="bg-blue-500 text-white p-2 w-full rounded hover:bg-blue-600">Login</button>
-      <p x-text="error" class="text-red-500 mt-2 text-sm"></p>
-      <template x-if="loading">
-        <p class="text-gray-500 text-sm mt-2">🔄 Logging in...</p>
-      </template>
+
     </div>
-  </template>
-</div>
+  </div>
+
 <script>
-function chatApp() {
+ // Завантаження HTML-шаблонів після завантаження DOM
+    document.addEventListener('DOMContentLoaded', () => {
+       // Завантаження login.html
+      fetch('./login.html')
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('login-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading login:', error));
+
+
+      // Завантаження sidebar.html
+      fetch('./sidebar.html')
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('sidebar-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading sidebar:', error));
+    
+});
+</script>
+
+<script>
+ function chatApp() {
   return {
     username: '',
     password: '',
     accessToken: '',
+    userId: '',
+    roomId: '',
+    joinRoomId: '',
+    newRoomName: '',
+    newRoomId: '',
+    rooms: [],
+    messages: [],
+    newMessage: '',
+    inviteUser: '',
     error: '',
-    async login() {
-      try {
-        const res = await fetch('https://matrix.org/_matrix/client/r0/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'm.login.password', user: this.username, password: this.password })
-        });
-        const data = await res.json();
-        if(data.access_token) {
-          this.accessToken = data.access_token;
-          this.userId = data.user_id; 
-         
-        } else {
-          this.error = 'Login failed';
-        }
-      } catch(e) {
-        this.error = 'Error during login';
-        console.error(e);
-      }
-    }
+    lastSyncToken: '',
+    login,
+    createRoom,
+    fetchRoomsWithNames,
   }
 }
-
 </script>
+
+
+
 </body>
 </html>
