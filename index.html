@@ -47,15 +47,17 @@
     <!-- Контейнер для основної області чату -->
     <div class="chat-area p-4 flex flex-col">
       <!-- Контейнер для логіну -->
-      <div id="login-container">
-        
-      </div>
-
+      <div id="login-container"> </div>
+      <!-- Контейнер для чату -->
+      <div id="chat-container" class="chat-container"></div>
 
     </div>
   </div>
 
 <script>
+
+  
+
  // Завантаження HTML-шаблонів після завантаження DOM
     document.addEventListener('DOMContentLoaded', () => {
        // Завантаження login.html
@@ -75,6 +77,13 @@
         })
         .catch(error => console.error('Error loading sidebar:', error));
     
+      // Завантаження chat.html
+      fetch('./chat.html')
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('chat-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading chat:', error));
 });
 </script>
 
