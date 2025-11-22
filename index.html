@@ -4,22 +4,20 @@
   <meta charset="UTF-8">
   <title>Matrix Chat</title>
 
-   <!-- Глобальні стилі -->
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="login.css">
-    
+   <link rel="stylesheet" href="index.css">
 
-   <script src="./login.js"></script>
-   <script src="./sidebar.js"></script>
-   <script src="./chat.js"></script>
+   <script src="./components/login/login.js"></script>
+   <script src="./components/sidebar/sidebar.js"></script>
+   <script src="./components/chat/chat.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
-  
+
 </head>
 
 
 <body class="index-container bg-gray-100 flex justify-center">
   <div x-data="chatApp()" :class="accessToken ? '' : 'items-center'" class="flex w-full">
+
     <!-- Контейнер для сайдбару--> 
     <div id="sidebar-container"></div>
 
@@ -41,7 +39,7 @@
  // Завантаження HTML-шаблонів після завантаження DOM
     document.addEventListener('DOMContentLoaded', () => {
        // Завантаження login.html
-      fetch('./login.html')
+      fetch('./components/login/login.html')
         .then(response => response.text())
         .then(html => {
           document.getElementById('login-container').innerHTML = html;
@@ -50,7 +48,7 @@
 
 
       // Завантаження sidebar.html
-      fetch('./sidebar.html')
+      fetch('./components/sidebar/sidebar.html')
         .then(response => response.text())
         .then(html => {
           document.getElementById('sidebar-container').innerHTML = html;
@@ -58,7 +56,7 @@
         .catch(error => console.error('Error loading sidebar:', error));
     
       // Завантаження chat.html
-      fetch('./chat.html')
+      fetch('./components/chat/chat.html')
         .then(response => response.text())
         .then(html => {
           document.getElementById('chat-container').innerHTML = html;
