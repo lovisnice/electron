@@ -2,6 +2,11 @@
   text-align: center;
 }
 
+.sidebar-list {
+  height: 76vh;
+  overflow-y: scroll;
+}
+
 .room-list li {
   padding: 8px;
   transition: background-color 0.2s;

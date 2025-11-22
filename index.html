@@ -3,44 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <title>Matrix Chat</title>
+
+   <!-- Глобальні стилі -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="login.css">
+    
+
    <script src="./login.js"></script>
    <script src="./sidebar.js"></script>
    <script src="./chat.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
-
-  <style>
-    .chat-container {
-      min-height: 80vh;
-    }
-    .sidebar {
-      min-width: 250px;
-    }
-    .chat-area {
-      flex-grow: 1;
-    }
-    .message-input {
-      min-height: 80px;
-    }
-    .room-list li {
-      padding: 8px;
-      transition: background-color 0.2s;
-    }
-    .room-list li:hover {
-      background-color: #e0e7ff;
-    }
-    .room-list li.active {
-      background-color: #bfdbfe;
-      font-weight: 500;
-    }
-  </style>
-
-
+  
 </head>
 
 
-<body class="bg-gray-100 flex items-center justify-center p-4">
-  <div x-data="chatApp()" class="chat-container bg-white rounded-lg shadow-lg flex w-full max-w-5xl">
+<body class="index-container bg-gray-100 flex justify-center">
+  <div x-data="chatApp()" :class="accessToken ? '' : 'items-center'" class="flex w-full">
     <!-- Контейнер для сайдбару--> 
     <div id="sidebar-container"></div>
 
@@ -113,7 +92,8 @@
     getRoomName,
     switchRoom,
     sendMessage,
-    fetchMessages
+    fetchMessages,
+    fetchRoomMembers
   }
 }
 </script>
