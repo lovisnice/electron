@@ -23,3 +23,14 @@ async function login() {
     console.error(e);
   }
 }
+
+function logout() {
+  this.accessToken = '';
+  this.userId = '';
+  this.rooms = [];
+  this.messages = [];
+  this.roomId = '';
+  this.username = '';
+  this.password = '';
+  this.error = '';
+}

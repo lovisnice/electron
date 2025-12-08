@@ -23,3 +23,21 @@
     </div>
   </div>
 </template>
+
+ <!-- Сайдбар із користувачами -->
+<template x-if="accessToken">
+  <div class="sidebar p-4 bg-gray-50 border-r border-gray-200 overflow-y-auto">
+    <h2 class="text-xl font-bold mb-4">Users</h2>
+    <!-- Запрошення та приєднання -->
+          <div class="space-y-2">
+            <div>
+              <input x-model="inviteUser" placeholder="Invite user (e.g., @user:matrix.org)" class="border p-2 w-full mb-1 rounded">
+              <button @click="inviteUserToRoom()" class="bg-purple-500 text-white p-2 w-full rounded hover:bg-purple-600 transition">Invite</button>
+            </div>
+            <div>
+              <input x-model="joinRoomId" placeholder="Room ID to join (e.g., !roomId:matrix.org)" class="border p-2 w-full mb-1 rounded">
+              <button @click="joinRoom()" class="bg-yellow-500 text-white p-2 w-full rounded hover:bg-yellow-600 transition">Join Room</button>
+            </div>
+          </div>
+  </div>
+</template>
