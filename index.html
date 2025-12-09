@@ -191,6 +191,9 @@
         error: '',
         lastSyncToken: '',
         roomMembers: [],
+        editMode: null,
+        editText: '',
+        creatingRoom: false,
         login: proxy('login'),
         createRoom: proxy('createRoom'),
         fetchRoomsWithNames: proxy('fetchRoomsWithNames'),
@@ -203,8 +206,21 @@
         fetchRoomMembers: proxy('fetchRoomMembers'),
         leaveRoom: proxy('leaveRoom'),
         kickUser: proxy('kickUser'),
+        startEdit: proxy('startEdit'),
+        cancelEdit: proxy('cancelEdit'),
+        saveEdit: proxy('saveEdit'),
+        deleteMessage: proxy('deleteMessage'),
+        showDesktopNotification: proxy('showDesktopNotification'),
+        playNotificationSound: proxy('playNotificationSound'),
       };
     }
+
+    // Request notification permission on load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (Notification && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    });
   </script>
 
 </body>
