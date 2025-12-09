@@ -1,43 +1,21 @@
 <link rel="stylesheet" href="./components/sidebar/sidebar.css">
 
- <!-- Сайдбар із кімнатами -->
 <template x-if="accessToken">
   <div class="sidebar p-4 bg-gray-50 border-r border-gray-200 overflow-y-auto">
-    <h2 class="text-xl font-bold mb-4">Rooms</h2>
+    <h2 class="sidebar-title text-xl font-bold mb-4">Rooms</h2>
     <div class="room-list space-y-1 px-4">
-    <ul class="sidebar-list">
-      <template x-for="room in rooms" :key="room.roomId">
-        <li 
-          @click="switchRoom(room.roomId)" 
-          :class="{ 'active': room.roomId === roomId }" 
-          x-text="room.name || room.roomId"
-          class="cursor-pointer rounded-lg"
-        ></li>
-      </template>
+      <ul class="sidebar-list">
+        <template x-for="room in rooms" :key="room.roomId">
+          <li @click="switchRoom(room.roomId)" :class="{ 'active': room.roomId === roomId }"
+            x-text="room.name || room.roomId" class="cursor-pointer rounded-lg"></li>
+        </template>
     </div>
     </ul>
     <div class="mt-4">
       <input x-model="newRoomName" placeholder="New room name" class="border p-2 w-full mb-2 rounded">
-      <button @click="createRoom()" class="bg-indigo-500 text-white p-2 w-full rounded hover:bg-indigo-600 transition">Create Room</button>
+      <button @click="createRoom()"
+        class="bg-indigo-500 text-white p-2 w-full rounded hover:bg-indigo-600 transition">Create Room</button>
       <p x-show="newRoomId" class="text-sm text-gray-600 mt-1">Room ID: <span x-text="newRoomId"></span></p>
     </div>
-  </div>
-</template>
-
- <!-- Сайдбар із користувачами -->
-<template x-if="accessToken">
-  <div class="sidebar p-4 bg-gray-50 border-r border-gray-200 overflow-y-auto">
-    <h2 class="text-xl font-bold mb-4">Users</h2>
-    <!-- Запрошення та приєднання -->
-          <div class="space-y-2">
-            <div>
-              <input x-model="inviteUser" placeholder="Invite user (e.g., @user:matrix.org)" class="border p-2 w-full mb-1 rounded">
-              <button @click="inviteUserToRoom()" class="bg-purple-500 text-white p-2 w-full rounded hover:bg-purple-600 transition">Invite</button>
-            </div>
-            <div>
-              <input x-model="joinRoomId" placeholder="Room ID to join (e.g., !roomId:matrix.org)" class="border p-2 w-full mb-1 rounded">
-              <button @click="joinRoom()" class="bg-yellow-500 text-white p-2 w-full rounded hover:bg-yellow-600 transition">Join Room</button>
-            </div>
-          </div>
   </div>
 </template>

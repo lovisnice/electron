@@ -18,7 +18,7 @@ async function sendMessage() {
         });
         const data = await res.json();
         if (data.event_id) {
-          this.messages.push({ id: data.event_id, body: msg, sender: this.userId });
+          this.messages.push({ id: data.event_id, body: msg, sender: this.userId, timestamp: Date.now() });
         } else {
           console.error('Send failed:', data);
         }
@@ -31,37 +31,27 @@ async function sendMessage() {
 async function fetchMessages() {
       if (!this.accessToken || !this.roomId) return;
       try {
-        const url = this.lastSyncToken ? 
-          `https://matrix.org/_matrix/client/r0/sync?since=${this.lastSyncToken}&timeout=30000` :
-          `https://matrix.org/_matrix/client/r0/sync?timeout=30000`;
+        const url = `https://matrix.org/_matrix/client/r0/rooms/${encodeURIComponent(this.roomId)}/messages?access_token=${this.accessToken}&dir=b&limit=50`;
         const res = await fetch(url, {
           headers: { 'Authorization': `Bearer ${this.accessToken}` }
         });
         const data = await res.json();
-        if (data.next_batch) {
-          this.lastSyncToken = data.next_batch;
-
-
-          if (data.rooms?.join?.[this.roomId]) {
-            const roomData = data.rooms.join[this.roomId];
-            roomData.timeline?.events?.forEach(event => {
-              if (event.type === 'm.room.message' && !this.messages.find(m => m.id === event.event_id)) {
-                this.messages.push({ 
-                  id: event.event_id, 
-                  body: event.content.body, 
-                  sender: event.sender 
-                });
-              }
-            });
-          }
-          if (data.rooms?.invite) {
-            for (const [room] of Object.entries(data.rooms.invite)) {
-              await this.joinRoom(room);
-            }
-          }
-          await this.fetchRoomsWithNames();
+        if (data.chunk) {
+          const newMessages = data.chunk
+            .filter(event => event.type === 'm.room.message')
+            .reverse()
+            .map(event => ({
+              id: event.event_id,
+              body: event.content.body,
+              sender: event.sender,
+              timestamp: event.origin_server_ts
+            }));
+          
+          // Замінити старі повідомлення на нові (або додати до них)
+          this.messages = newMessages;
+          console.log('Fetched messages:', newMessages.length);
         } else {
-          console.warn('No next_batch in sync response:', data);
+          console.warn('No messages in response:', data);
         }
       } catch (e) {
         console.error('Fetch messages error:', e);

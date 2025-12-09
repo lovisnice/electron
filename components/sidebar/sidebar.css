@@ -2,11 +2,6 @@
   text-align: center;
 }
 
-.sidebar-list {
-  height: 76vh;
-  overflow-y: scroll;
-}
-
 .room-list li {
   padding: 8px;
   transition: background-color 0.2s;
@@ -19,4 +14,8 @@
 .room-list li.active {
   background-color: #bfdbfe;
   font-weight: 500;
+}
+.sidebar-list {
+    height: 76vh;
+    overflow-y: scroll;
 }

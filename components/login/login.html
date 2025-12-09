@@ -1,25 +1,15 @@
+<link rel="stylesheet" href="./components/login/login.css">
 
-<!-- If user is logged in -->
-  <template x-if="accessToken">
-    <div>
-      <h1 class="text-lg font-semibold mb-4 text-green-600">Ви успішно авторизувались!</h1>
-      <div class="flex flex-col h-[300px]">
-        <div class="mb-2 p-2 bg-gray-100 rounded text-sm break-words">
-          <span class="font-bold">Your Matrix ID:</span>
-          <span class="text-gray-700" x-text="userId ? userId : 'Loading...'"></span>
-        </div>
-        <button @click="logout()" class="bg-red-500 text-white mt-auto p-2 rounded">Logout</button>
-      </div>
-    </div>
-  </template>
-
-  <!-- If not logged in -->
-  <template x-if="!accessToken">
-        <div>
-          <h2 class="text-xl font-bold mb-4">Login</h2>
-          <input x-model="username" placeholder="Username (e.g., @user:matrix.org)" class="border p-2 w-full mb-2 rounded">
-          <input x-model="password" type="password" placeholder="Password" class="border p-2 w-full mb-2 rounded">
-          <button @click="login()" class="bg-blue-500 text-white p-2 w-full rounded hover:bg-blue-600 transition">Login</button>
-          <p x-text="error" class="text-red-500 mt-2"></p>
-        </div>
-    </template>
+<template x-if="!accessToken">
+  <div class="login-box p-4">
+    <h2 class="login-title text-xl font-bold mb-4">Вхід у Matrix</h2>
+    <input x-model="username" placeholder="Ім’я користувача (наприклад, @user:matrix.org)"
+           class="border p-2 w-full mb-2 rounded" />
+    <input x-model="password" type="password" placeholder="Пароль"
+           class="border p-2 w-full mb-3 rounded" />
+    <button @click="login()" class="login-btn bg-blue-600 text-white p-2 w-full rounded hover:bg-blue-700 transition">
+      Увійти
+    </button>
+    <p x-text="error" class="login-error text-red-500 mt-3"></p>
+  </div>
+</template>

@@ -1,115 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
+
 <head>
   <meta charset="UTF-8">
   <title>Matrix Chat</title>
 
-   <link rel="stylesheet" href="index.css">
+  <!-- Tailwind + Alpine -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs" defer></script>
 
+  <!-- Глобальні стилі -->
+  <link rel="stylesheet" href="index.css">
+
+  <!-- Скрипти компонентів -->
   <script src="./components/login/login.js"></script>
   <script src="./components/sidebar/sidebar.js"></script>
   <script src="./components/chat/chat.js"></script>
   <script src="./components/user/user.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/alpinejs" defer></script>
-
 </head>
 
-
 <body class="index-container bg-gray-100 flex justify-center">
+
   <div x-data="chatApp()" :class="accessToken ? '' : 'items-center'" class="flex w-full">
+    <!-- Сайдбар -->
+    <div id="sidebar-container" class="sidebar"></div>
 
-    <!-- Контейнер для сайдбару--> 
-    <div id="sidebar-container"></div>
-
-
-      <!-- Контейнер для основної області чату -->
+    <!-- Основна частина -->
     <div class="chat-area p-4 flex flex-col">
-      <!-- Контейнер для логіну -->
-      <div id="login-container">
-        <!-- If user is logged in -->
-        <template x-if="accessToken">
-          <div>
-            <h1 class="text-lg font-semibold mb-4 text-green-600">Ви успішно авторизувались!</h1>
-            <div class="flex flex-col h-[300px]">
-              <div class="mb-2 p-2 bg-gray-100 rounded text-sm break-words">
-                <span class="font-bold">Your Matrix ID:</span>
-                <span class="text-gray-700" x-text="userId ? userId : 'Loading...'"></span>
-              </div>
-              <button @click="logout()" class="bg-red-500 text-white mt-auto p-2 rounded">Logout</button>
-            </div>
-          </div>
-        </template>
+      <div id="login-container"></div>
 
-        <!-- If not logged in -->
-        <template x-if="!accessToken">
-          <div>
-            <h2 class="text-xl font-bold mb-4">Login</h2>
-            <input x-model="username" placeholder="Username (e.g., @user:matrix.org)" class="border p-2 w-full mb-2 rounded">
-            <input x-model="password" type="password" placeholder="Password" class="border p-2 w-full mb-2 rounded">
-            <button @click="login()" class="bg-blue-500 text-white p-2 w-full rounded hover:bg-blue-600 transition">Login</button>
-            <p x-text="error" class="text-red-500 mt-2"></p>
-          </div>
-        </template>
-      </div>
       <!-- Контейнер для чату -->
-    <div id="chat-container" class="chat-container"></div>
+      <div id="chat-container" class="chat-container"></div>
 
     </div>
+    <div id="user-container" class="user"></div>
   </div>
 
-<script>
- // Завантаження HTML-шаблонів після завантаження DOM
+  <script>
+    // Підвантаження компонентів після завантаження DOM
     document.addEventListener('DOMContentLoaded', () => {
-      // Завантаження sidebar.html
+      // login.html
+      fetch('./components/login/login.html')
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById('login-container').innerHTML = html;
+        })
+        .catch(err => console.error('Помилка завантаження login.html:', err));
+
+      // sidebar.html
       fetch('./components/sidebar/sidebar.html')
-        .then(response => response.text())
+        .then(res => res.text())
         .then(html => {
           document.getElementById('sidebar-container').innerHTML = html;
         })
-        .catch(error => console.error('Error loading sidebar:', error));
-    
-      // Завантаження chat.html
-      fetch('./components/chat/chat.html')
-        .then(response => response.text())
-        .then(html => {
-          document.getElementById('chat-container').innerHTML = html;
-        })
-        .catch(error => console.error('Error loading chat:', error));
+        .catch(err => console.error('Помилка завантаження sidebar.html:', err));
     });
-</script>
+    // Завантаження chat.html
+    fetch('./components/chat/chat.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('chat-container').innerHTML = html;
+      })
+      .catch(error => console.error('Error loading chat:', error));
+    // user.html
+    fetch('./components/user/user.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('user-container').innerHTML = html;
+      })
+      .catch(err => console.error('Помилка завантаження user.html:', err));
 
-<script>
- function chatApp() {
-  return {
-    username: '',
-    password: '',
-    accessToken: '',
-    userId: '',
-    roomId: '',
-    joinRoomId: '',
-    newRoomName: '',
-    newRoomId: '',
-    rooms: [],
-    messages: [],
-    newMessage: '',
-    inviteUser: '',
-    error: '',
-    lastSyncToken: '',
-    login,
-    logout,
-    createRoom,
-    fetchRoomsWithNames,
-    joinRoom,
-    inviteUserToRoom,
-    getRoomName,
-    switchRoom,
-    sendMessage,
-    fetchMessages,
-    fetchRoomMembers,
-  }
-}
-</script>
+
+
+    // Alpine компонент
+    function chatApp() {
+      return {
+        username: '',
+        password: '',
+        accessToken: '',
+        userId: '',
+        roomId: '',
+        joinRoomId: '',
+        newRoomName: '',
+        newRoomId: '',
+        rooms: [],
+        messages: [],
+        newMessage: '',
+        inviteUser: '',
+        error: '',
+        lastSyncToken: '',
+        roomMembers: [],
+        login,
+        createRoom,
+        fetchRoomsWithNames,
+        joinRoom,
+        inviteUserToRoom,
+        getRoomName,
+        switchRoom,
+        sendMessage,
+        fetchMessages,
+        fetchRoomMembers,
+      };
+    }
+  </script>
 
 </body>
+
 </html>
