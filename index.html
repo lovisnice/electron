@@ -12,16 +12,11 @@
   <!-- Глобальні стилі -->
   <link rel="stylesheet" href="index.css">
 
-  <!-- Скрипти компонентів -->
-  <script src="./components/login/login.js"></script>
-  <script src="./components/sidebar/sidebar.js"></script>
-  <script src="./components/chat/chat.js"></script>
-  <script src="./components/user/user.js"></script>
 </head>
 
 <body class="index-container bg-gray-100 flex justify-center">
 
-  <div x-data="chatApp()" :class="accessToken ? '' : 'login-mode items-center justify-center'" class="flex w-full h-screen">
+  <div x-data="chatApp()" :class="(typeof accessToken !== 'undefined' && accessToken) ? '' : 'login-mode items-center justify-center'" class="flex w-full h-screen">
     <!-- Сайдбар -->
     <div id="sidebar-container" class="sidebar"></div>
 
@@ -36,43 +31,149 @@
     <div id="user-container" class="user"></div>
   </div>
 
-  <script>
-    // Підвантаження компонентів після завантаження DOM
-    document.addEventListener('DOMContentLoaded', () => {
-      // login.html
-      fetch('./components/login/login.html')
-        .then(res => res.text())
-        .then(html => {
-          document.getElementById('login-container').innerHTML = html;
-        })
-        .catch(err => console.error('Помилка завантаження login.html:', err));
+  <script src="./components/login/login.js"></script>
+  <script src="./components/sidebar/sidebar.js"></script>
+  <script src="./components/chat/chat.js"></script>
+  <script src="./components/user/user.js"></script>
 
-      // sidebar.html
-      fetch('./components/sidebar/sidebar.html')
-        .then(res => res.text())
-        .then(html => {
-          document.getElementById('sidebar-container').innerHTML = html;
-        })
-        .catch(err => console.error('Помилка завантаження sidebar.html:', err));
+  <script>
+    // Global error reporting: show errors on-screen to help debug blank renderer
+    window.addEventListener('error', (ev) => {
+      try {
+        const msg = (ev && ev.error && ev.error.stack) ? ev.error.stack : (ev && ev.message) || String(ev);
+        console.error('Uncaught error:', ev, ev.error);
+        document.body.innerHTML = `<div style="padding:20px;font-family:monospace;white-space:pre-wrap;color:#900;background:#fff;">Renderer error:\n${escapeHtml(msg)}</div>`;
+      } catch (e) {
+        console.error('Error reporting failed:', e);
+      }
     });
-    // Завантаження chat.html
-    fetch('./components/chat/chat.html')
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('chat-container').innerHTML = html;
-      })
-      .catch(error => console.error('Error loading chat:', error));
-    // user.html
-    fetch('./components/user/user.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('user-container').innerHTML = html;
-      })
-      .catch(err => console.error('Помилка завантаження user.html:', err));
+    window.addEventListener('unhandledrejection', (ev) => {
+      try {
+        const msg = ev && ev.reason ? (ev.reason.stack || ev.reason) : String(ev);
+        console.error('Unhandled rejection:', ev);
+        document.body.innerHTML = `<div style="padding:20px;font-family:monospace;white-space:pre-wrap;color:#900;background:#fff;">Unhandled rejection:\n${escapeHtml(String(msg))}</div>`;
+      } catch (e) { console.error('Promise rejection reporting failed:', e); }
+    });
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    console.log('index.html script running');
+
+    // Підвантаження компонентів після завантаження DOM
+    async function loadComponent(path, containerId) {
+      try {
+        const res = await fetch(path);
+        const html = await res.text();
+        document.getElementById(containerId).innerHTML = html;
+      } catch (e) {
+        console.error(`Помилка завантаження ${path}:`, e);
+      }
+    }
+
+    async function refreshLayout() {
+      // Reload sidebar, chat and user templates into their containers
+      await loadComponent('./components/sidebar/sidebar.html', 'sidebar-container');
+      await loadComponent('./components/chat/chat.html', 'chat-container');
+      await loadComponent('./components/user/user.html', 'user-container');
+
+      // Give a short delay for DOM to settle
+      setTimeout(() => {
+        try {
+          // Re-enable inputs if needed
+          const ta = document.querySelector('.message-input');
+          if (ta) {
+            ta.disabled = false;
+            ta.readOnly = false;
+            ta.style.pointerEvents = 'auto';
+            ta.tabIndex = 0;
+          }
+          const nr = document.querySelector('input[x-model="newRoomName"]');
+          if (nr) {
+            nr.disabled = false;
+            nr.readOnly = false;
+            nr.style.pointerEvents = 'auto';
+            nr.tabIndex = 0;
+          }
+        } catch (e) {
+          console.warn('refreshLayout enable inputs error:', e);
+        }
+      }, 100);
+    }
+
+    // Request the main process to perform a soft app reload (reloads the BrowserWindow)
+    function reloadApp() {
+      try {
+        const { ipcRenderer } = require('electron');
+        ipcRenderer.send('app-reload');
+      } catch (e) {
+        // Fallback to location reload if IPC isn't available
+        try { location.reload(); } catch (err) { console.error('reload fallback failed:', err); }
+      }
+    }
+
+    // Simple non-blocking toast
+    (function createToastContainer(){
+      const c = document.createElement('div');
+      c.id = 'app-toast-container';
+      Object.assign(c.style, {
+        position: 'fixed',
+        right: '20px',
+        bottom: '20px',
+        zIndex: 9999,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        alignItems: 'flex-end'
+      });
+      document.addEventListener('DOMContentLoaded', () => document.body.appendChild(c));
+
+      window.showToast = function(message, ms = 4000) {
+        try {
+          const toast = document.createElement('div');
+          toast.className = 'app-toast';
+          Object.assign(toast.style, {
+            background: 'rgba(0,0,0,0.8)',
+            color: '#fff',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            maxWidth: '320px',
+            fontFamily: 'sans-serif',
+            fontSize: '13px',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.2)'
+          });
+          toast.textContent = message;
+          (document.getElementById('app-toast-container') || c).appendChild(toast);
+          if (ms > 0) setTimeout(() => { try { toast.remove(); } catch(e){} }, ms);
+          return toast;
+        } catch (e) { console.warn('showToast failed:', e); }
+      };
+    })();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // initially load components
+      loadComponent('./components/login/login.html', 'login-container');
+      loadComponent('./components/sidebar/sidebar.html', 'sidebar-container');
+      loadComponent('./components/chat/chat.html', 'chat-container');
+      loadComponent('./components/user/user.html', 'user-container');
+    });
 
 
 
     // Alpine компонент
+    function proxy(fnName) {
+      return function(...args) {
+        try {
+          const f = window[fnName];
+          if (typeof f === 'function') return f.apply(this, args);
+          console.warn(`${fnName} is not available yet`);
+        } catch (e) {
+          console.error(`proxy ${fnName} error:`, e);
+        }
+      };
+    }
+
     function chatApp() {
       return {
         username: '',
@@ -90,16 +191,18 @@
         error: '',
         lastSyncToken: '',
         roomMembers: [],
-        login,
-        createRoom,
-        fetchRoomsWithNames,
-        joinRoom,
-        inviteUserToRoom,
-        getRoomName,
-        switchRoom,
-        sendMessage,
-        fetchMessages,
-        fetchRoomMembers,
+        login: proxy('login'),
+        createRoom: proxy('createRoom'),
+        fetchRoomsWithNames: proxy('fetchRoomsWithNames'),
+        joinRoom: proxy('joinRoom'),
+        inviteUserToRoom: proxy('inviteUserToRoom'),
+        getRoomName: proxy('getRoomName'),
+        switchRoom: proxy('switchRoom'),
+        sendMessage: proxy('sendMessage'),
+        fetchMessages: proxy('fetchMessages'),
+        fetchRoomMembers: proxy('fetchRoomMembers'),
+        leaveRoom: proxy('leaveRoom'),
+        kickUser: proxy('kickUser'),
       };
     }
   </script>

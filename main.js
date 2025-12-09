@@ -1,7 +1,7 @@
 // main.js
 // Імпортуємо модулі 'app' (керує життєвим циклом)
 // та 'BrowserWindow' (створює вікна)
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 // Функція для створення вікна
@@ -9,7 +9,11 @@ const createWindow = () => {
     // Створюємо нове вікно браузера
     const win = new BrowserWindow({
         width: 800,
-        height: 600
+        height: 600,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
     });
 
     // Завантажуємо файл index.html у це вікно
@@ -35,5 +39,18 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
+    }
+});
+
+// Listen for reload requests from renderer and reload the corresponding window
+ipcMain.on('app-reload', (event) => {
+    try {
+        const win = BrowserWindow.fromWebContents(event.sender) || BrowserWindow.getAllWindows()[0];
+        if (win && win.webContents) {
+            // reload ignoring cache to ensure fresh UI
+            win.webContents.reloadIgnoringCache();
+        }
+    } catch (e) {
+        console.error('app-reload handler failed:', e);
     }
 });

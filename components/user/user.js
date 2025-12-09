@@ -84,3 +84,37 @@ async function joinRoom() {
     alert('Join room error: ' + e.message);
   }
 }
+
+
+// --- Kick user from room ---
+async function kickUser(userId) {
+  if (!this.accessToken || !this.roomId || !userId) return;
+
+  if (!confirm(`Викинути користувача ${userId} з кімнати?`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://matrix.org/_matrix/client/r0/rooms/${encodeURIComponent(this.roomId)}/kick`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.accessToken}`
+      },
+      body: JSON.stringify({ user_id: userId })
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      this.roomMembers = this.roomMembers.filter(m => m.userId !== userId);
+      alert(`Користувач ${userId} викинутий з кімнати.`);
+      await this.fetchRoomMembers();
+    } else {
+      console.error('Kick failed:', data);
+      alert('Не вдалося викинути користувача: ' + (data.error || 'Невідома помилка'));
+    }
+  } catch (e) {
+    console.error('Kick error:', e);
+    alert('Помилка: ' + e.message);
+  }
+}
